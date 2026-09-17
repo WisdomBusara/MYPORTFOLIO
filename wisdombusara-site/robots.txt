@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://wisdombusara.com/sitemap.xml
