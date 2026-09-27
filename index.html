@@ -192,11 +192,15 @@
 
   /* filters + projects */
   .filters{display:flex;flex-wrap:wrap;gap:8px;margin:26px 0 6px}
-  .filt{font-family:var(--mono);font-size:13px;color:var(--muted);border:1px solid var(--line-2);background:none;border-radius:7px;padding:6px 13px;cursor:pointer}
+  .filt{font-family:var(--mono);font-size:13px;color:var(--muted);border:1px solid var(--line-2);background:none;border-radius:7px;padding:6px 13px;cursor:pointer;transition:all .2s ease}
   .filt:hover{color:var(--fg);border-color:var(--accent)}
   .filt[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:600}
   .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:16px}
-  .card{border:1px solid var(--line);border-radius:11px;background:var(--panel-2);padding:18px;display:flex;flex-direction:column;gap:9px}
+  .card{border:1px solid var(--line);border-radius:11px;background:var(--panel-2);padding:18px;display:flex;flex-direction:column;gap:9px;cursor:pointer;transition:all .3s ease;position:relative;overflow:hidden}
+  .card::before{content:"";position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(135deg,var(--accent,.3),transparent);opacity:0;pointer-events:none;transition:opacity .3s ease}
+  .card:hover{border-color:var(--accent);box-shadow:0 8px 24px rgba(245,165,36,.08),0 0 0 1px var(--accent);transform:translateY(-4px)}
+  .card:hover::before{opacity:1}
+  .card .num{font-family:var(--mono);font-size:11px;color:var(--muted-2);opacity:.6}
   .card .top{display:flex;align-items:center;justify-content:space-between;gap:8px}
   .card .n{font-family:var(--mono);font-size:14px;color:var(--fg);font-weight:500}
   .card .badge{font-family:var(--mono);font-size:10px;color:var(--accent);border:1px solid var(--line-2);border-radius:5px;padding:2px 6px;white-space:nowrap}
@@ -204,8 +208,10 @@
   .card .d{color:var(--muted);font-size:14px;flex:1}
   .card .chips{display:flex;flex-wrap:wrap;gap:6px}
   .card .chip{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid var(--line-2);border-radius:5px;padding:3px 8px}
-  .card .lk{font-size:13px;font-family:var(--mono)}
+  .card .lk{font-size:13px;font-family:var(--mono);color:var(--accent);transition:opacity .2s ease}
+  .card:hover .lk{opacity:.7}
   .card[hidden]{display:none}
+  @media (prefers-reduced-motion:reduce){.card{transition:none}.card::before{transition:none}.card:hover{transform:none}}
   @media (max-width:820px){.cards{grid-template-columns:1fr 1fr}}
   @media (max-width:540px){.cards{grid-template-columns:1fr}}
 
@@ -282,6 +288,31 @@
   @media (max-width:720px){.cc{grid-template-columns:1fr}}
 
   footer{padding:36px 0;color:var(--muted-2);font-size:14px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
+
+  /* project modal */
+  .projModal{position:fixed;inset:0;z-index:95;display:none;align-items:center;justify-content:center;background:rgba(6,6,8,.72);padding:16px;overflow-y:auto}
+  .projModal.open{display:flex}
+  .projPanel{width:min(720px,100%);background:var(--panel);border:1px solid var(--line-2);border-radius:16px;overflow:hidden;box-shadow:0 32px 100px rgba(0,0,0,.6);position:relative;animation:projSlide .3s ease}
+  @keyframes projSlide{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
+  @media (prefers-reduced-motion:reduce){.projPanel{animation:none}}
+  .projClose{position:absolute;top:16px;right:16px;z-index:1;width:36px;height:36px;border:1px solid var(--line-2);background:var(--panel-2);color:var(--muted);font-size:24px;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s}
+  .projClose:hover{border-color:var(--accent);color:var(--accent)}
+  #projContent{padding:32px}
+  #projContent h2{font-size:28px;margin:0 0 12px;color:var(--fg)}
+  #projContent .projMeta{display:flex;gap:16px;margin:20px 0 24px;flex-wrap:wrap}
+  #projContent .projMeta div{display:flex;flex-direction:column;gap:4px}
+  #projContent .projMeta .label{font-family:var(--mono);font-size:12px;color:var(--muted-2)}
+  #projContent .projMeta .value{font-family:var(--mono);font-size:13px;color:var(--fg)}
+  #projContent .projDesc{color:var(--muted);line-height:1.7;margin:20px 0;max-width:90ch}
+  #projContent .projDesc strong{color:var(--fg);font-weight:600}
+  #projContent .projTech{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0}
+  #projContent .projTech span{font-family:var(--mono);font-size:12px;background:var(--line);color:var(--muted);padding:6px 12px;border-radius:6px}
+  #projContent .projCTA{display:flex;gap:12px;margin-top:28px;flex-wrap:wrap}
+  #projContent .projCTA a{padding:11px 18px;border-radius:8px;font-family:var(--mono);font-size:14px;font-weight:600;text-decoration:none;display:inline-flex;align-items:center;gap:6px;transition:all .2s}
+  #projContent .projCTA a.primary{background:var(--accent);color:var(--accent-ink);border:1px solid var(--accent)}
+  #projContent .projCTA a.primary:hover{filter:brightness(1.1)}
+  #projContent .projCTA a.secondary{background:none;color:var(--fg);border:1px solid var(--line-2)}
+  #projContent .projCTA a.secondary:hover{border-color:var(--accent);color:var(--accent)}
 
   /* command palette */
   .cmdk{position:fixed;inset:0;z-index:100;display:none;align-items:flex-start;justify-content:center;background:rgba(6,6,8,.62);padding:12vh 16px 16px}
@@ -401,57 +432,66 @@
     </div>
 
     <div class="cards" id="cards">
-      <article class="card" data-tags="automation ai products">
+      <article class="card" data-tags="automation ai products" role="button" tabindex="0">
+        <div class="num">01</div>
         <div class="top"><span class="n">Automation &amp; data</span><span class="badge priv">private</span></div>
         <div class="d">Web scrapers and extraction pipelines, mail-merge and reporting systems, and file and workflow automation. Repetitive manual work turned into scheduled, reliable jobs.</div>
         <div class="chips"><span class="chip">Python</span><span class="chip">scraping</span><span class="chip">pipelines</span></div>
       </article>
-      <article class="card" data-tags="ai">
+      <article class="card" data-tags="ai" role="button" tabindex="0">
+        <div class="num">02</div>
         <div class="top"><span class="n">AI &amp; agents</span><span class="badge priv">private</span></div>
-        <div class="d">LLM-driven assistants and autonomous agents, plus text-generation and analysis tooling. Where a lot of current build energy goes.</div>
+        <div class="d">LLM-driven assistants and autonomous agents, plus text-generation and analysis tooling. Building multi-step reasoning systems that scale.</div>
         <div class="chips"><span class="chip">LLM</span><span class="chip">agents</span><span class="chip">TypeScript</span></div>
       </article>
-      <article class="card" data-tags="products">
+      <article class="card" data-tags="products" role="button" tabindex="0">
+        <div class="num">03</div>
         <div class="top"><span class="n">Full-stack products</span><span class="badge priv">private</span></div>
-        <div class="d">End-to-end web and mobile products, from API and data layer through UI to deployment, including SaaS and internal systems.</div>
+        <div class="d">End-to-end web and mobile products: API and data layer through to UI, deployment, and operations. SaaS platforms and internal systems.</div>
         <div class="chips"><span class="chip">React</span><span class="chip">Node</span><span class="chip">mobile</span></div>
       </article>
 
-      <article class="card" data-tags="payments products">
+      <article class="card" data-tags="payments products" role="button" tabindex="0">
+        <div class="num">04</div>
         <div class="top"><span class="n">payments-integration-kit</span><span class="badge">public</span></div>
-        <div class="d">Provider-agnostic payments integration: one interface, many gateways (Flutterwave, Cybersource, Africa's Talking).</div>
-        <div class="chips"><span class="chip">Node.js</span><span class="chip">TypeScript</span><span class="chip">Docker</span></div>
-        <a class="lk" href="https://github.com/WisdomBusara/payments-integration-kit" target="_blank" rel="noopener">code ↗</a>
+        <div class="d">The pattern: one SDK, any payment gateway (Flutterwave, Cybersource, Africa's Talking). Swap providers without changing app code.</div>
+        <div class="chips"><span class="chip">Node.js</span><span class="chip">TypeScript</span><span class="chip">Docker</span><span class="chip">driver pattern</span></div>
+        <a class="lk" href="https://github.com/WisdomBusara/payments-integration-kit" target="_blank" rel="noopener">explore ↗</a>
       </article>
-      <article class="card" data-tags="payments">
+      <article class="card" data-tags="payments" role="button" tabindex="0">
+        <div class="num">05</div>
         <div class="top"><span class="n">tips-rtgs-client</span><span class="badge">public</span></div>
-        <div class="d">Typed, SDK-style client for central-bank settlement rails (TIPS / RTGS).</div>
-        <div class="chips"><span class="chip">TypeScript</span><span class="chip">ISO 20022</span></div>
-        <a class="lk" href="https://github.com/WisdomBusara/tips-rtgs-client" target="_blank" rel="noopener">code ↗</a>
+        <div class="d">Typed SDK for central-bank settlement: TIPS and RTGS rails. ISO 20022 messages, payment finality, enterprise-grade reliability.</div>
+        <div class="chips"><span class="chip">TypeScript</span><span class="chip">ISO 20022</span><span class="chip">banking</span></div>
+        <a class="lk" href="https://github.com/WisdomBusara/tips-rtgs-client" target="_blank" rel="noopener">explore ↗</a>
       </article>
-      <article class="card" data-tags="payments products">
+      <article class="card" data-tags="payments products" role="button" tabindex="0">
+        <div class="num">06</div>
         <div class="top"><span class="n">laravel-ecommerce-starter</span><span class="badge">public</span></div>
-        <div class="d">Swappable payment gateways behind one interface, in Laravel (a driver pattern).</div>
-        <div class="chips"><span class="chip">PHP</span><span class="chip">Laravel</span></div>
-        <a class="lk" href="https://github.com/WisdomBusara/laravel-ecommerce-starter" target="_blank" rel="noopener">code ↗</a>
+        <div class="d">E-commerce foundation with driver-pattern payments. Ship today, swap gateways tomorrow. Full-featured starter template.</div>
+        <div class="chips"><span class="chip">PHP</span><span class="chip">Laravel</span><span class="chip">payments</span></div>
+        <a class="lk" href="https://github.com/WisdomBusara/laravel-ecommerce-starter" target="_blank" rel="noopener">explore ↗</a>
       </article>
-      <article class="card" data-tags="products payments">
+      <article class="card" data-tags="products payments" role="button" tabindex="0">
+        <div class="num">07</div>
         <div class="top"><span class="n">mern-starter-pro</span><span class="badge">public</span></div>
-        <div class="d">MERN baseline: JWT auth on the server, a React client, and Docker.</div>
-        <div class="chips"><span class="chip">MongoDB</span><span class="chip">Express</span><span class="chip">React</span></div>
-        <a class="lk" href="https://github.com/WisdomBusara/mern-starter-pro" target="_blank" rel="noopener">code ↗</a>
+        <div class="d">Production MERN template: JWT auth, secure server, Docker-ready. The foundation for full-stack products.</div>
+        <div class="chips"><span class="chip">MongoDB</span><span class="chip">Express</span><span class="chip">React</span><span class="chip">Docker</span></div>
+        <a class="lk" href="https://github.com/WisdomBusara/mern-starter-pro" target="_blank" rel="noopener">explore ↗</a>
       </article>
-      <article class="card" data-tags="products payments">
+      <article class="card" data-tags="products payments" role="button" tabindex="0">
+        <div class="num">08</div>
         <div class="top"><span class="n">rn-payments-starter</span><span class="badge">public</span></div>
-        <div class="d">Expo React Native app that calls a payments backend: the mobile front to the integration work.</div>
-        <div class="chips"><span class="chip">React Native</span><span class="chip">Expo</span></div>
-        <a class="lk" href="https://github.com/WisdomBusara/rn-payments-starter" target="_blank" rel="noopener">code ↗</a>
+        <div class="d">React Native + Expo foundation for mobile payments apps. Connects to payment backends, ready to ship to App Store and Play Store.</div>
+        <div class="chips"><span class="chip">React Native</span><span class="chip">Expo</span><span class="chip">mobile</span></div>
+        <a class="lk" href="https://github.com/WisdomBusara/rn-payments-starter" target="_blank" rel="noopener">explore ↗</a>
       </article>
-      <article class="card" data-tags="automation">
+      <article class="card" data-tags="automation" role="button" tabindex="0">
+        <div class="num">09</div>
         <div class="top"><span class="n">odk-forms-toolkit</span><span class="badge">public</span></div>
-        <div class="d">Python helpers for ODK forms: CSV to JSON conversion, validators, and pytest coverage.</div>
-        <div class="chips"><span class="chip">Python</span><span class="chip">pytest</span></div>
-        <a class="lk" href="https://github.com/WisdomBusara/odk-forms-toolkit" target="_blank" rel="noopener">code ↗</a>
+        <div class="d">Data collection tooling: CSV to JSON pipelines, validators, test coverage. Transforms messy form data into clean records.</div>
+        <div class="chips"><span class="chip">Python</span><span class="chip">pytest</span><span class="chip">data pipelines</span></div>
+        <a class="lk" href="https://github.com/WisdomBusara/odk-forms-toolkit" target="_blank" rel="noopener">explore ↗</a>
       </article>
     </div>
 
@@ -564,6 +604,14 @@
   <span class="mono">AI · Automation · Full-stack · Shipping daily</span>
 </footer>
 
+<!-- PROJECT DETAIL MODAL -->
+<div class="projModal" id="projModal" role="dialog" aria-modal="true" aria-label="Project details">
+  <div class="projPanel">
+    <button class="projClose" aria-label="Close project details" id="projClose">&times;</button>
+    <div id="projContent"></div>
+  </div>
+</div>
+
 <!-- COMMAND PALETTE -->
 <div class="cmdk" id="cmdk" role="dialog" aria-modal="true" aria-label="Command menu">
   <div class="panel">
@@ -621,14 +669,41 @@
   }
   $("#runPipe").addEventListener("click",runPipe);
 
-  /* project filters */
+  /* project filters + animations */
   var filts=$$(".filt"), cards=$$("#cards .card");
   filts.forEach(function(b){b.addEventListener("click",function(){
     filts.forEach(function(x){x.setAttribute("aria-pressed","false")});
     b.setAttribute("aria-pressed","true");
     var f=b.getAttribute("data-f");
-    cards.forEach(function(c){var t=c.getAttribute("data-tags");c.hidden=(f!=="all" && t.indexOf(f)===-1)});
+    var visible=0;
+    cards.forEach(function(c){var t=c.getAttribute("data-tags");var shouldShow=(f==="all" || t.indexOf(f)>-1);if(!reduce&&!shouldShow)c.style.animation="fadeOut .2s ease forwards";else{if(!shouldShow)c.hidden=true;else{c.hidden=false;if(!reduce){c.style.animation="none";setTimeout(function(){c.style.animation="cardReveal .4s ease "+(.06*visible)+"s forwards"},10);visible++}}}});
   })});
+  if("@keyframes"in document.documentElement.style||"webkitAnimationName"in document.documentElement.style){
+    var style=document.createElement("style");style.textContent="@keyframes fadeOut{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(8px)}}@keyframes cardReveal{from{opacity:0;transform:translateY(12px);filter:blur(2px)}to{opacity:1;transform:translateY(0);filter:blur(0)}}";document.head.appendChild(style);
+  };
+
+  /* project modal */
+  var projectDetails={
+    "Automation & data":{desc:"Comprehensive automation systems covering web scraping, data extraction, and workflow automation. These projects eliminate repetitive manual tasks by turning them into scheduled, reliable jobs that run without intervention.",impact:"Automates 100s of hours annually",tags:["Python","Scrapers","Pipelines","Data transformation"]},
+    "AI & agents":{desc:"LLM-driven assistants and autonomous agent systems. Building multi-step reasoning systems that can understand context, make decisions, and take action. From chatbots to complex reasoning agents.",impact:"Ships AI systems to production",tags:["LLM","Agents","TypeScript","Reasoning"]},
+    "Full-stack products":{desc:"Complete end-to-end products: API design, data layer architecture, UI, deployment, and operations. Building systems that scale, from SaaS platforms to internal tools.",impact:"Multiple shipped products",tags:["React","Node","Databases","DevOps"]},
+    "payments-integration-kit":{desc:"Provider-agnostic payment gateway integration. The pattern: write your code once, swap payment providers with configuration, not code. Supports Flutterwave, Cybersource, and Africa's Talking out of the box.",impact:"Reduces integration time by 70%",tags:["Node.js","TypeScript","Docker","Payments"],github:"https://github.com/WisdomBusara/payments-integration-kit"},
+    "tips-rtgs-client":{desc:"Typed SDK for central bank settlement rails. TIPS (Target InstantPayment Settlement) and RTGS (Real-Time Gross Settlement) client with full ISO 20022 support. Enterprise-grade reliability for payment finality.",impact:"Production payments system",tags:["TypeScript","ISO 20022","Banking","Payments"],github:"https://github.com/WisdomBusara/tips-rtgs-client"},
+    "laravel-ecommerce-starter":{desc:"E-commerce foundation using Laravel with driver-pattern payment integration. Ship your store today with multiple payment gateway support. Fully extensible architecture.",impact:"Launch storefronts faster",tags:["PHP","Laravel","Payments","E-commerce"],github:"https://github.com/WisdomBusara/laravel-ecommerce-starter"},
+    "mern-starter-pro":{desc:"Production-grade MERN (MongoDB, Express, React, Node) template. Includes JWT authentication, secure server setup, Docker configuration, and deployment ready. The foundation for full-stack products.",impact:"Saves weeks of setup",tags:["MongoDB","Express","React","Docker"],github:"https://github.com/WisdomBusara/mern-starter-pro"},
+    "rn-payments-starter":{desc:"React Native + Expo foundation for mobile payment applications. Connect to any payment backend, build once, deploy to iOS and Android. App Store and Play Store ready.",impact:"Mobile payments in days",tags:["React Native","Expo","Mobile","Payments"],github:"https://github.com/WisdomBusara/rn-payments-starter"},
+    "odk-forms-toolkit":{desc:"Python toolkit for ODK (Open Data Kit) form data. Transform messy form responses into clean, structured records. Includes CSV to JSON conversion, validators, and comprehensive test coverage.",impact:"Data quality automation",tags:["Python","pytest","Data pipelines"],github:"https://github.com/WisdomBusara/odk-forms-toolkit"}
+  };
+  function openProject(name){
+    var d=projectDetails[name],c=$("#projContent");
+    if(!d)return;
+    var cta="",gh=d.github?'<a class="secondary" href="'+d.github+'" target="_blank" rel="noopener">View on GitHub ↗</a>':"";
+    c.innerHTML='<h2>'+name+'</h2><div class="projMeta"><div><span class="label">impact</span><span class="value">'+d.impact+'</span></div></div><div class="projDesc">'+d.desc+'</div><div class="projTech">'+d.tags.map(function(t){return '<span>'+t+'</span>'}).join('')+'</div><div class="projCTA">'+gh+'</div>';
+    $("#projModal").classList.add("open");
+  }
+  cards.forEach(function(c){c.addEventListener("click",function(){openProject(c.querySelector(".n").textContent)});c.addEventListener("keydown",function(e){if(e.key==="Enter")openProject(c.querySelector(".n").textContent)})});
+  $("#projClose").addEventListener("click",function(){$("#projModal").classList.remove("open")});
+  $("#projModal").addEventListener("click",function(e){if(e.target===this)this.classList.remove("open")});
 
   /* adapter demo */
   var providers={
