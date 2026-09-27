@@ -6,7 +6,13 @@ Deploying a static site (no build step, no server-side code) to a VPS, with the 
 
 ## 0. What's in the bundle
 
-Extract `wisdombusara-site.tar.gz` and you get the web root:
+The `wisdombusara-site/` folder in the repo is the web root. Its `index.html` is kept identical to the repo-root `index.html`. To ship it as one file, build a tarball from it (Git Bash; the tarball is a build artifact, don't commit it):
+
+```bash
+tar czf /tmp/wisdombusara-site.tar.gz -C wisdombusara-site .
+```
+
+Extracted, it gives you:
 
 ```
 index.html            # the site (self-contained: inline CSS + JS)
@@ -32,10 +38,10 @@ Notes:
 
 ## 2. Put the files on the server
 
-From your local machine, copy the bundle up:
+From your local machine, copy the bundle you built in step 0 up:
 
 ```bash
-scp wisdombusara-site.tar.gz you@VPS_IP:/tmp/
+scp /tmp/wisdombusara-site.tar.gz you@VPS_IP:/tmp/
 ```
 
 Then on the VPS:
@@ -183,16 +189,50 @@ In a browser, confirm: the page loads over HTTPS, the dark/light toggle works, �
 
 ## 9. Updating the site later
 
-Static files, so updates are simple. To replace just the page:
+Static files, so updates are simple. Run these from the repo root on your machine; Git Bash and PowerShell both ship `ssh` and `scp`. Replace `you@VPS_IP` with your SSH login. `ssh -t` lets `sudo` prompt for your password. No nginx reload is needed for content changes.
+
+**1. Confirm the web root** (first time only; expect `/var/www/wisdombusara`, and adjust the paths below if yours differs):
 
 ```bash
-scp index.html you@VPS_IP:/tmp/ && \
-  ssh you@VPS_IP 'sudo mv /tmp/index.html /var/www/wisdombusara/index.html && sudo chown www-data:www-data /var/www/wisdombusara/index.html'
+ssh -t you@VPS_IP "sudo nginx -T 2>/dev/null | grep -A20 'server_name wisdombusara.com' | grep -m1 root"
 ```
 
-Or re-extract the whole bundle over the existing root (step 2). No nginx reload is needed for content changes.
+**2. Back up the live page, outside the web root.** A backup inside `/var/www/wisdombusara` would be publicly downloadable:
 
-After updating, purge the edge cache so visitors get the new version immediately: Cloudflare dashboard → Caching → Configuration → **Purge Everything** (or purge the single URL). The `index.html` cache is only 5 minutes anyway, so it will refresh on its own shortly regardless.
+```bash
+ssh you@VPS_IP 'cp /var/www/wisdombusara/index.html ~/index.html.bak-$(date +%F-%H%M)'
+```
+
+**3. Upload and install the new page.** `install` copies, sets the owner, and sets the mode in one step:
+
+```bash
+scp index.html you@VPS_IP:/tmp/index.html
+ssh -t you@VPS_IP 'sudo install -o www-data -g www-data -m 644 /tmp/index.html /var/www/wisdombusara/index.html && rm /tmp/index.html'
+```
+
+If anything under `assets/` changed too, ship the whole bundle instead (Git Bash):
+
+```bash
+tar czf /tmp/wisdombusara-site.tar.gz -C wisdombusara-site .
+scp /tmp/wisdombusara-site.tar.gz you@VPS_IP:/tmp/
+ssh -t you@VPS_IP 'sudo tar xzf /tmp/wisdombusara-site.tar.gz -C /var/www/wisdombusara && sudo chown -R www-data:www-data /var/www/wisdombusara && rm /tmp/wisdombusara-site.tar.gz'
+```
+
+**4. Purge the edge cache.** Cloudflare dashboard → Caching → Configuration → **Custom Purge** → URL `https://wisdombusara.com/` (or **Purge Everything**). The `index.html` cache is only 5 minutes anyway, so it refreshes on its own shortly regardless.
+
+**5. Verify** from your machine, then in a browser (theme toggle, Ctrl+K, the project tour, no errors in DevTools console):
+
+```bash
+curl -s https://wisdombusara.com/ | grep -c "SOMETHING UNIQUE TO THIS CHANGE"    # expect 1 or more
+curl -s -o /dev/null -w "%{http_code}\n" https://wisdombusara.com/assets/three.min.js   # expect 200
+```
+
+**Rollback.** List your backups, restore one, then purge the cache again:
+
+```bash
+ssh you@VPS_IP 'ls -t ~/index.html.bak-*'
+ssh -t you@VPS_IP 'sudo install -o www-data -g www-data -m 644 ~/index.html.bak-YYYY-MM-DD-HHMM /var/www/wisdombusara/index.html'
+```
 
 ---
 
